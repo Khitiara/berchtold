@@ -6,16 +6,19 @@
 
 package berchtold.client
 
+import berchtold.Logging
+import berchtold.logger
 import org.lwjgl.opengl.GL11.GL_TEXTURE_2D
 import org.lwjgl.opengl.GL11.glBindTexture
 
-object RenderHelper {
+object RenderHelper : Logging {
     private var boundTexture: Int = -1
 
     fun bind(id: Int) {
         if (boundTexture != id) {
             boundTexture = id
             glBindTexture(GL_TEXTURE_2D, id)
+            logger().debug("Bound $id")
         }
     }
 }

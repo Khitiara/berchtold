@@ -7,12 +7,13 @@
 package berchtold.client
 
 import berchtold.Identifier
+import berchtold.Logging
 import berchtold.resource.ResourceCollection
 import java.io.IOException
 
-class TextureManager(private val resources: ResourceCollection) {
+class TextureManager(private val resources: ResourceCollection) : Logging {
     private val created: MutableMap<Identifier, Texture> = HashMap()
-    private val starting: Set<Identifier> = HashSet()
+    private val starting: Set<Identifier> = hashSetOf(Identifier("berchtold", "icons/axe"))
 
     fun bind(texture: Identifier): Pair<Int, Int> {
         val tex = created.getOrPut(texture) { registerTexture(texture) }
@@ -23,11 +24,11 @@ class TextureManager(private val resources: ResourceCollection) {
     fun registerTexture(id: Identifier): Texture = try {
         ResourceTexture(id).also { it.load(resources) }
     } catch (e: IOException) {
-        TODO()
+        throw e // TODO
     }
 
     fun registerKnown() {
-        starting.forEach { registerTexture(it) }
+        starting.forEach { created.put(it, registerTexture(it)) }
     }
 
 }

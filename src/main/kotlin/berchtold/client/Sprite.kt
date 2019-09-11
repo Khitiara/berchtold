@@ -8,40 +8,26 @@ package berchtold.client
 
 import berchtold.Game
 import berchtold.Identifier
-import org.lwjgl.opengl.GL11.glTexCoord2f
-import org.lwjgl.opengl.GL11.glVertex2i
+import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL13.GL_TEXTURE0
+import org.lwjgl.opengl.GL13.glActiveTexture
 
-
-data class Vertex(val x: Int, val y: Int, val u: Int, val v: Int) {
-    fun draw(texWidth: Int, texHeight: Int) {
-        glTexCoord2f(u.toFloat() / texWidth, v.toFloat() / texHeight)
-        glVertex2i(x, y)
-    }
-}
-
-data class Sprite(val texture: Identifier, val start: Vertex, val end: Vertex) {
-    val topLeft = Vertex(
-        kotlin.math.min(start.x, end.x), kotlin.math.max(start.x, start.y), if (start.x < end.x) start.u
-        else end.u, if (start.y > end.y) start.v else end.v
-    )
-    val topRight = Vertex(
-        kotlin.math.max(start.x, end.x), kotlin.math.max(start.x, start.y), if (start.x > end.x) start.u
-        else end.u, if (start.y > end.y) start.v else end.v
-    )
-    val botLeft = Vertex(
-        kotlin.math.min(start.x, end.x), kotlin.math.min(start.x, start.y), if (start.x < end.x) start.u
-        else end.u, if (start.y < end.y) start.v else end.v
-    )
-    val botRight = Vertex(
-        kotlin.math.max(start.x, end.x), kotlin.math.min(start.x, start.y), if (start.x > end.x) start.u
-        else end.u, if (start.y < end.y) start.v else end.v
-    )
-
+data class Sprite(val texture: Identifier, val left: Int, val right: Int, val top: Int, val bot: Int) {
     fun draw() {
-        val (w, h) = Game.texmgr.bind(texture)
-        topLeft.draw(w, h)
-        topRight.draw(w, h)
-        botRight.draw(w, h)
-        botLeft.draw(w, h)
+        glActiveTexture(GL_TEXTURE0)
+//        glColor4i(1, 1, 0, 0)
+        glEnable(GL_TEXTURE_2D)
+        Game.texmgr.bind(texture)
+        glBegin(GL_QUADS)
+        glTexCoord2f(0f, 1f)
+        glVertex2i(left, top)
+        glTexCoord2f(0f, 0f)
+        glVertex2i(left, bot)
+        glTexCoord2f(1f, 0f)
+        glVertex2i(right, bot)
+        glTexCoord2f(1f, 1f)
+        glVertex2i(right, top)
+        glEnd()
+        glDisable(GL_TEXTURE_2D)
     }
 }

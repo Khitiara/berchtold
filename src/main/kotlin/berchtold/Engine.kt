@@ -73,7 +73,10 @@ object Engine : Logging, CliktCommand() {
     private fun renderLoop() {
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
+        Game.renderInit()
         glClearColor(0F, 0F, 0F, 0F)
+//        glEnable(GL_BLEND);
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
@@ -129,8 +132,8 @@ object Engine : Logging, CliktCommand() {
         })
         glfwSetWindowAspectRatio(window, 16, 9)
 
-        val vidmode: GLFWVidMode? = glfwGetVideoMode(glfwGetPrimaryMonitor())
-        glfwSetWindowPos(window, (vidmode!!.width() - width) / 2, (vidmode.height() - height) / 2)
+        val vidmode: GLFWVidMode = glfwGetVideoMode(glfwGetPrimaryMonitor())!!
+        glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2)
         glfwShowWindow(window)
 
         Timing.clientTiming.init()

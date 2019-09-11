@@ -7,18 +7,18 @@
 package berchtold
 
 import berchtold.client.TextureManager
+import berchtold.game.ColonyGame
 import berchtold.resource.ResourceCollection
 import berchtold.resource.ResourceCollections
 import org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE
 import org.lwjgl.opengl.GL11.*
 
 object Game : Logging {
-    val resources: ResourceCollection by lazy {
-        ResourceCollections.compound(
-            ResourceCollections.classpath("assets"),
-            ResourceCollections.dir(Engine.assetsPath)
-        )
-    }
+    val resources: ResourceCollection = ResourceCollections.classpath("assets")
+    //        ResourceCollections.compound(
+//            ,
+//            ResourceCollections.dir(Engine.assetsPath)
+//        )
     val texmgr: TextureManager by lazy { TextureManager(resources) }
 
     fun init() {
@@ -27,21 +27,19 @@ object Game : Logging {
             if (it.key == GLFW_KEY_ESCAPE)
                 Engine.exit()
         }
+    }
+
+    fun renderInit() {
         texmgr.registerKnown()
         logger().info("Texture manager initialized...")
     }
 
     fun render() {
-        glColor3f(0f, 0f, 1f)
         glViewport(0, 0, Engine.width, Engine.height)
-        glPushMatrix()
-        glBegin(GL_QUADS)
-        glVertex2f(-.25f, .25f)
-        glVertex2f(-.5f, -.25f)
-        glVertex2f(.5f, -.25f)
-        glVertex2f(.25f, .25f)
-        glPopMatrix()
-        glEnd()
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0.0, 1600.0, 900.0, 0.0, 0.0, 500.0)
+        ColonyGame.draw()
     }
 
     fun update() {

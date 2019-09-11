@@ -7,9 +7,11 @@
 package berchtold.client
 
 import berchtold.resource.ResourceCollection
+import kotlinx.io.core.Closeable
+import org.lwjgl.opengl.GL11.glDeleteTextures
 import org.lwjgl.opengl.GL11.glGenTextures
 
-interface Texture {
+interface Texture : Closeable {
     val glId: Int
 
     fun load(mgr: ResourceCollection)
@@ -23,5 +25,9 @@ interface Texture {
 }
 
 abstract class BaseTexture : Texture {
-    override val glId: Int by lazy { glGenTextures() }
+    final override val glId: Int = glGenTextures()
+
+    override fun close() {
+        glDeleteTextures(glId)
+    }
 }

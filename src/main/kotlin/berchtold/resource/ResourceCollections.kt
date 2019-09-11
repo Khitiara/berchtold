@@ -11,14 +11,13 @@ import java.net.URL
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 
 class JarAssetsResourceCollection(jarPath: Path, assetsBase: String = "assets") :
     BaseResourceCollection(DefaultResourcePathnameScheme) {
     private val fs = FileSystems.newFileSystem(jarPath, javaClass.classLoader)
     private val basePath = fs.getPath(assetsBase)
 
-    override fun resolve(path: String): Path? = basePath.resolve(path)
+    override fun resolve(path: String): Resource? = FileResource(basePath.resolve(path))
 }
 
 class ResourceDirResourceCollection(private val dirPath: Path) : BaseResourceCollection(
@@ -28,23 +27,25 @@ class ResourceDirResourceCollection(private val dirPath: Path) : BaseResourceCol
         Files.createDirectories(dirPath)
     }
 
-    override fun resolve(path: String): Path? = dirPath.resolve(path)
+    override fun resolve(path: String): Resource? =
+        dirPath.resolve(path).takeIf { Files.exists(it) }?.let { FileResource(it) }
 }
 
 class ClasspathResourceCollection(private val assetsBase: String = "assets") :
     BaseResourceCollection(DefaultResourcePathnameScheme) {
-    override fun resolve(path: String): Path? {
-        val resource: URL? = javaClass.getResource("${assetsBase}/$path")
-        return if (resource != null) Paths.get(resource.toURI()) else null
+    override fun resolve(path: String): Resource? {
+        println("Checking for classpath entry at $assetsBase/$path")
+        val resource: URL? = javaClass.classLoader.getResource("$assetsBase/$path")
+        return resource?.toURI()?.let { URIResource(it) }
     }
 }
 
 class CompoundResourceCollection(private val sources: List<ResourceCollection>) :
     ResourceCollection {
-    override fun resolve(identifier: Identifier): Path? {
+    override fun resolve(identifier: Identifier, ext: String): Resource? {
         for (source: ResourceCollection in sources) {
-            val path = source.resolve(identifier)
-            if (path != null) return path
+            val resource: Resource? = source.resolve(identifier, ext)
+            if (resource != null) return resource
         }
         return null
     }

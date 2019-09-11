@@ -10,21 +10,21 @@ import berchtold.Identifier
 import java.nio.file.Path
 
 interface ResourceCollection {
-    fun resolve(identifier: Identifier): Path?
+    fun resolve(identifier: Identifier, ext: String): Resource?
 }
 
 abstract class BaseResourceCollection(private val scheme: ResourcePathnameScheme) :
     ResourceCollection {
-    override fun resolve(identifier: Identifier): Path? = resolve(scheme.toPath(identifier))
+    override fun resolve(identifier: Identifier, ext: String): Resource? = resolve(scheme.toPath(identifier, ext))
 
-    protected abstract fun resolve(path: String): Path?
+    protected abstract fun resolve(path: String): Resource?
 }
 
 interface ResourcePathnameScheme {
-    fun toPath(identifier: Identifier): String
+    fun toPath(identifier: Identifier, ext: String): String
 }
 
 object DefaultResourcePathnameScheme : ResourcePathnameScheme {
-    override fun toPath(identifier: Identifier): String = "${identifier.domain}/${identifier.path}"
+    override fun toPath(identifier: Identifier, ext: String): String = "${identifier.domain}/${identifier.path}.$ext"
 }
 
